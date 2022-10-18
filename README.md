@@ -48,6 +48,10 @@ Algorithm Configuration, Differential Evolution, Parameter Control, Exploration 
 
 3. Or [download the citation in RIS file (through IEEE Xplore).](https://ieeexplore.ieee.org/abstract/document/9504876)
 
+## Related work
+
+[Online algorithm configuration for differential evolution algorithm (OAC-DE)](https://pypi.org/project/oacde/)
+
 ## Contact
 
 [Asst. Prof. Changwu HUANG](https://faculty.sustech.edu.cn/huangcw3/en/)
