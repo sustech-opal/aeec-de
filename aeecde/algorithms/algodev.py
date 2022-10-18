@@ -7,39 +7,29 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from copy import deepcopy
-
 # internal imports
-import aeecde
-import tools
-# import parameterize as para
-from tuner import *
+from aeecde.tuners.tuner import *
+from aeecde.publics import tools
 from algorithms.DE import _DEVariant
 from algorithms.DE import skip_and_aggregate_of_list_data
-
-# HB : the following imports are for personal purpose
-try:
-    import sys, IPython
-    sys.excepthook = IPython.core.ultratb.ColorTB()
-except:
-    pass
 
 
 
 #!-----------------------------------------------------------------------------
 #!                                     CLASSES
 #!-----------------------------------------------------------------------------
-class AOSPCDE(_DEVariant):
-    ''' AOSPCDE (Adaptive Operator Selection and Parameter Control DE)
-    :class:`AOSPCDE` implements the DE considering the search state of each
-    individual during the search process.
-    Key features:
-        - 3 groups of model are created: 1 for explorating, 1 for exploiting
-          and 1 for measuring performance
-        - each group includes 1 MAB bandit model and 2 KDE models for F and CR
-          separativly
+class AEECDE(_DEVariant):
+    ''' AEECDE (Adaptive Exploration and Exploitation Control DE)
+        :class:`AEECDE` implements the DE considering the search state of each
+        individual during the search process.
+        Key features:
+            - 3 groups of model are created: 1 for explorating, 1 for exploiting
+            and 1 for measuring performance
+            - each group includes 1 MAB bandit model and 2 KDE models for F and
+            CR separativly
     '''
 
-    ALGO_NAME = "AOSPCDE"
+    ALGO_NAME = "AEECDE"
 
     _DEVariant.HIST_ITEMS.extend(["pop_state", "pop_sum_dist", "pop_avg_dist",
         "X"])
@@ -95,9 +85,6 @@ class AOSPCDE(_DEVariant):
                              features_name=None,
                              max_training_size=state_KDE_max_size,
                              random_state=self.para.rng)
-        # self.state_kde.set_params(rtol=1e-3, atol=1e-8)
-        # self.state_kde.set_params(rtol=1e-3, atol=1e-4)
-        # self.state_kde.set_params(atol=1e-8)
         self.state_kde.set_params(rtol=1e-4, atol=1e-8)
         # ----------------------------------------------------------------------
         #* A bandit model which focuses on the exploration ability of each arm
@@ -295,7 +282,7 @@ class AOSPCDE(_DEVariant):
         # print("Archive size: ", len(self.archive))
 
     def _update_state_threshold(self):
-        #! Set the bandwidth of state kde as the avg_distance of current pop
+        #! Set the bandwidth of state kde by one of the following distance of the current pop
         # self.state_kde.bandwidth = self.pop.min_distance
         # self.state_kde.bandwidth = self.pop.max_distance
         # self.state_kde.bandwidth = self.pop.avg_distance
@@ -395,7 +382,6 @@ class AOSPCDE(_DEVariant):
                             n_configs=n_configs)
                         self.config_strategy.append("random_select")
                     else:
-                        # if self.pb.num_calls <= self.stop.max_FES * 2/3:
                         configs1 = self.__generate_explore_configs(
                             n_configs=int(n_configs/4))
                         configs2 = self.__generate_exploit_configs(
@@ -406,11 +392,6 @@ class AOSPCDE(_DEVariant):
                             n_configs=int(n_configs/4))
                         configs = configs1+configs2+configs3+configs4
                         self.config_strategy.append("other")
-                        # print("generation {}: 4 configs".format(self.pop.nth_generation))
-                        # else:
-                        #     configs = self.__generate_exploit_configs(n_configs=n_configs)
-                        #     self.config_strategy.append("exploit_bandit_kde")
-                        #     print("generation {}: exploitation configs".format(self.pop.nth_generation))
                 elif cond2 and cond3:
                         # print("generation {}: cond2 and cond3 avg={}".format(self.pop.nth_generation, self.improve_moving_average))
                         self.x_opt_history.append(self.pb.x_opt)
@@ -706,7 +687,6 @@ class AOSPCDE(_DEVariant):
                   "Explore Bandit & KDE", "Exploit Bandit & KDE", "other",
                   "reset"]
         st_data = {name: {"x": [], "y": []} for name in st_names}
-        # colors = ["C9", "C8", "C7", "C6", "C5", "C4", "C3", "C2", "C1", "C0"]
         colors = ["C9", "C8", "C7", "blue", "red", "C4", "C3", "C2", "C1", "C0"]
         markers = ["o", "o", "s", "s", "s", "D", "X", "o", "o", "o"]
         for i, st in enumerate(strategies):
@@ -752,69 +732,7 @@ class AOSPCDE(_DEVariant):
 #!                                     TESTING
 #!------------------------------------------------------------------------------
 def main():
-
-    # TODO: Test algorithm with different configs on
-    #                BBOB: F1, F6, F9, F10, | F15, F19, F20, F24
-    # and determine the suitable parameter setting for our algorithm.
-
-    case = 0
-
-    if case == 0:
-        seed = 4092220473
-        data = []
-        benchamrk = "bbob2015"
-        D = 2
-
-        for F in [1,]:
-            pop_size = 50
-            problem = aeecde.problem.Benchmark(benchmark_set=benchamrk,
-                                    D=D, funID=F, instanceID=1)
-            config = aeecde.parameterize.DE(seed=seed, N=pop_size)
-
-            stop = aeecde.parameterize.StopCondition(max_FES=1e4 * D,
-                                          max_iter=None, delta_ftarget=1e-8)
-            problem = aeecde.problem.Benchmark(benchmark_set=benchamrk,
-                                    D=D, funID=F, instanceID=1)
-            config = aeecde.parameterize.DE(seed=seed, N=pop_size)
-
-            optimizer = AOSPCDE(opt_problem=problem,
-                                algo_parameters=config,
-                                stop_conditions=stop,
-                                learning_gen=20,
-                                state_threshold="median",
-                                stagnation_gen=10,
-                                model_update_frequency="each_gen",
-                                model_utilization_strategy="strategy_5",
-                                KDE_kernel="gaussian",
-                                para_KDE_width_F=0.2,
-                                para_KDE_width_CR=0.2,
-                                para_KDE_max_size=50,
-                                state_KDE_max_size=50*50,
-                                bandit_algo="UCB",
-                                bandit_value_method="sliding_window_average",
-                                epsilon=0.2,
-                                temperature=None,
-                                sliding_window_size=50
-                               )
-            print("\n====={}-F{}-D{}: {} using {} with {} value =====".format(
-                        benchamrk.upper(), F, D,
-                        optimizer.ALGO_NAME, "UCB", "sliding_window_average"))
-            results = optimizer.solve(disp=False, plot=True)
-            output = optimizer.data
-            data.append(output)
-
-            print("Initial f_best:", output.get("f_best_hist")[0])
-            print("Calculated results:", results)
-            print("Theoretical optimal value:", problem.f_opt_theory)
-            print("Evolved Generations:", output.get("nth_hist")[-1])
-
-            optimizer.show_evolution()
-
-            optimizer.plot_para_histogram()
-            plt.show()
-            plt.close()
-
-        return data
+    pass
 
 if __name__ == "__main__":
     data = main()

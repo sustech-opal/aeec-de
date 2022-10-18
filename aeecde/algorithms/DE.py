@@ -1,29 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-''' Differential Evolution
+''' Copyright 2022 Hao Bai, Changwu Huang and Xin Yao
+
+    Differential Evolution
 '''
 import numpy as np
 import matplotlib.pyplot as plt
-from concurrent import futures
 from copy import deepcopy
-from collections import OrderedDict
-
 from scipy.stats import cauchy
 from scipy.stats import norm
-
 # internal imports
-import aeecde.tools as tools
-import aeecde.parameterize as para
-# from aeecde.problems.problem import Benchmark
-# from aeecde.individual import Individual
-from aeecde.population import DEpopulation, ESpopulation, Swarm
+from aeecde.publics import tools
+from aeecde.publics import parameterize as para
+from aeecde.architectures.population import DEpopulation
 
-# HB : the following imports are for personal purpose
-try:
-    import sys, IPython
-    sys.excepthook = IPython.core.ultratb.ColorTB()
-except:
-    pass
 
 
 #!------------------------------------------------------------------------------
@@ -153,9 +143,6 @@ class __base(object):
         if ".json" in filestring:
             tools.to_json(self.data, filestring, replace)
             return
-        # elif ".rng" in filestring:
-        #     utils.save_binary(self.para.rng, filestring, replace)
-        #     return
         elif filestring == "":
             filename1 = self.pb.name + "_" + self.ALGO_NAME + ".json"
             filename2 = self.pb.name + "_" + self.ALGO_NAME + ".rng"
@@ -163,7 +150,6 @@ class __base(object):
             filename1 = str(filestring) + ".json"
             filename2 = str(filestring) + ".rng"
         tools.to_json(self.data, filename1, replace)
-        # utils.save_binary(self.para.rng, filename2, replace)
 
     def display_result(self, flag):
         if flag:
@@ -568,14 +554,6 @@ class RandomDE(_DEVariant):
             config["CR"]  = self.para.rng.uniform(self.CR_RANGE[0], self.CR_RANGE[1])
             list_configs = [config] * self.para.N # each ind is assgined the same config
         elif self.random_level == "individual_level":
-            # list_configs = []
-            # for i in range(self.para.N):
-            #     config = {}
-            #     config["mutation"] = self.para.rng.choice(self.MUT_POOL)
-            #     config["crossover"]  = self.para.rng.choice(self.CX_POOL)
-            #     config["F"]  = self.para.rng.uniform(self.F_RANGE[0],self.F_RANGE[1])
-            #     config["CR"]  = self.para.rng.uniform(self.CR_RANGE[0],self.CR_RANGE[1])
-            #     list_configs.append(config)
             # Implementation using list comprehension -------------------------
             list_MUT =list(self.para.rng.choice(self.MUT_POOL,size=self.para.N, replace=True))
             list_CX = list(self.para.rng.choice(self.CX_POOL,size=self.para.N, replace=True))
@@ -1011,8 +989,7 @@ class EPSDE(_DEVariant):
         self.ST_keys = [self._STdict_to_STname(st) for st in self.ST_POOL]
         self.F_keys =  [str(k) for k in self.F_POOL]
         self.CR_keys = [str(k) for k in self.CR_POOL]
-        # history of the usage frequency of each element in each Pool
-        # in each generation:
+        # history of the usage frequency of each element in each Pool in each generation:
         self.ST_n_hist = {key: [] for  key in self.ST_keys}
         self.F_n_hist =  {key: [] for  key in self.F_keys}
         self.CR_n_hist = {key: [] for  key in self.CR_keys}
@@ -1325,10 +1302,10 @@ class SAKPDE(_DEVariant):
         if self.pop.nth_generation < self.Gs:
             list_MUT = ["de/rand/1" for i in range(self.para.N)]
         else:
-            # [Option 1] 轮盘赌
+            # [Option 1] Roulette selection
             # list_MUT = [self.__roulette_wheel_selection(self.MUT_POOL,
             #   self.MUT_prob) for i in range(self.para.N)]
-            # [Option 2] 随机均匀选择
+            # [Option 2] Uniform random selection
             list_MUT = self.__stochastic_universal_selection(self.MUT_POOL,
                 self.MUT_prob)
         return list_MUT
@@ -1337,10 +1314,10 @@ class SAKPDE(_DEVariant):
         if self.pop.nth_generation < self.Gs:
             list_CX = ["bin" for i in range(self.para.N)]
         else:
-            # [Option 1] 轮盘赌
+            # [Option 1] Roulette selection
             # list_CX = [self.__roulette_wheel_selection(self.CX_POOL,
             #   self.CX_prob) for i in range(self.para.N)]
-            # [Option 2] 随机均匀选择
+            # [Option 2] Uniform random selection
             list_CX = self.__stochastic_universal_selection(self.CX_POOL,
                 self.CX_prob)
         return list_CX

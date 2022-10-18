@@ -1,23 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-''' Basic component and operator for tuning hyperparameters
-TODO
-    - Contextual bandit strategies
-    - online linear classfier: LinUCB (Upper Confidence Bound) algorithm
-    - online non-linear classifier: UCBogram algorithm
+''' Copyright 2022 Hao Bai, Changwu Huang and Xin Yao
+
+    Basic component and operator for tuning hyperparameters
 '''
 import math
 import numpy as np
 from sklearn.neighbors import KernelDensity
 from copy import deepcopy
-# internal imports
-
-# HB : the following imports are for personal purpose
-try:
-    import sys, IPython
-    sys.excepthook = IPython.core.ultratb.ColorTB()
-except:
-    pass
 
 
 
@@ -84,7 +74,7 @@ class KDE(__base):
     @property
     def features_name(self):
         return self._features_name
-    
+
     @features_name.setter
     def features_name(self, name):
         if name is None:
@@ -136,15 +126,6 @@ class KDE(__base):
                     x = self.kde_model.sample(
                         n_samples=1, random_state=self.rng)[0]
                 samples.append(x)
-
-                # x = self.kde_model.sample(n_samples=1, random_state=self.rng)[0]
-                # if "F" in self.features_name:
-                #     F_index = self.features_name.index("F")
-                #     while x[F_index] <= self.value_range[0][F_index]:
-                #         x = self.kde_model.sample(n_samples=1, random_state=self.rng)[0]
-                # x = np.clip(x, self.value_range[0], self.value_range[1])
-                # samples.append(x.tolist())
-
         else:
             X = self.rng.uniform(low=self.value_range[0],
                                  high=self.value_range[-1],
@@ -175,7 +156,7 @@ class KDE(__base):
 class __baseMAB(__base):
     ''' :class:`__baseMAB` is the base class for Multi-Armed Bandit tuner.'''
 
-    def __init__(self, list_arm_names, random_state, value_estimation_method, 
+    def __init__(self, list_arm_names, random_state, value_estimation_method,
         **kwargs):
         '''
         Creates a new :class:`__baseMAB` for Multi-Armed Bandit.
@@ -204,7 +185,7 @@ class __baseMAB(__base):
     @property
     def value_estimation_method(self):
         return self._value_estimation_method
-    
+
     @value_estimation_method.setter
     def value_estimation_method(self, method):
         if isinstance(method, str):
@@ -212,7 +193,7 @@ class __baseMAB(__base):
             if self._value_estimation_method == "sliding_window_average":
                 self.rewards = {arm: [] for arm in self.arms}
         else:
-            raise TypeError("`value_estimation_method` must be a str but {} is" 
+            raise TypeError("`value_estimation_method` must be a str but {} is"
                 " given".format(type(method)))
 
     @property
@@ -423,9 +404,7 @@ def multi_armed_bandit(bandit_algo, list_arm_names, random_state,
 #!                                     TESTING
 #!------------------------------------------------------------------------------
 def main():
-    case = 35
     pass
 
-
 if __name__ == "__main__":
-    main()    
+    main()

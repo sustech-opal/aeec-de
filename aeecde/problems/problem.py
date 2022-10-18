@@ -1,22 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-''' Optimization problem definitions
-'''
-import sys
-sys.path.append("..")
+''' Copyright 2022 Hao Bai, Changwu Huang and Xin Yao
 
+    Optimization problem definitions
+'''
 import numpy as np
-from .. import algorithms as alg
+from aeecde import algorithms as alg
 # internal imports
-from .. import parameterize as para
-from .. import tools
-from tools import ensure_bounds_clip, ensure_bounds_mirror
-# HB : the following imports are for personal purpose
-try:
-    import sys, IPython
-    sys.excepthook = IPython.core.ultratb.ColorTB()
-except:
-    pass
+from aeecde.publics import parameterize as para
+from aeecde.publics.tools import ensure_bounds_clip, ensure_bounds_mirror
 
 
 

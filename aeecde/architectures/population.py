@@ -1,18 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-''' Populations related classes and functions
+''' Copyright 2022 Hao Bai, Changwu Huang and Xin Yao
+
+    Populations related classes and functions
 '''
 import numpy as np
-from math import exp
 # internal imports
-from aeecde.individual import Individual, Particle
+from .individual import Individual, Particle
 from aeecde.operators import DE
-# HB : the following imports are for personal purpose
-try:
-    import sys, IPython
-    sys.excepthook = IPython.core.ultratb.ColorTB()
-except:
-    pass
 
 
 
@@ -161,7 +156,6 @@ class __base(object):
         return self._list_sorted
 
     def find_best_individual(self):
-        # lambda ind: ind.fvalue
         self._list_sorted = sorted(self.list_ind, key=get_f,
             reverse=False)
         self._ind_best = self._list_sorted[0]
@@ -219,7 +213,7 @@ class __base(object):
 
     def get_state(self):
         N_explore, N_exploit, N_neutral = 0, 0, 0
-        #TODO HB: not finished
+        #TODO: not finished
 
 class Swarm(__base):
     ''' :class:`Swarm` is the definition of swarm in PSO methods.
@@ -261,7 +255,7 @@ class Swarm(__base):
         self.list_ind = value
         self._list_par = self.list_ind
 
-#   -----------------------------  PSO Operators -----------------------------
+##   -----------------------------  PSO Operators -----------------------------
     def initialize(self, X0, vinit, vmin=None, vmax=None):
         if None in vinit:
             self.list_ind = [
@@ -416,7 +410,7 @@ class DEpopulation(__base):
         temp["CR"] = [ind.CR for ind in self.list_ind]
         return temp
 
-#   ------------- Three Mainly used methods of DEpopulation class -------------
+##   ------------- Three Mainly used methods of DEpopulation class -------------
     def initialize(self, X0):
         self.list_ind = [Individual(solution=x) for x in X0]
 
@@ -427,7 +421,7 @@ class DEpopulation(__base):
         trial.crossover, trial.CR = crossover, CR
         return trial
 
-#   -----------------------------  DE Operators -----------------------------
+##   -----------------------------  DE Operators -----------------------------
     def _parent_select(self, target_idx, k=5):
         '''
         Select k individuals for mutation from the current population.
@@ -443,14 +437,10 @@ class DEpopulation(__base):
         -------
             Return k selected individuals in a list.
         '''
-        # if isinstance(target_idx, int) and 0 <= target_idx <= self.size-1:
         idxs = list(range(self.size))
         idxs.remove(target_idx)
         self.rng.shuffle(idxs)
         return [self.list_ind[idx] for idx in idxs[:k]]
-        # else:
-        #     raise Exception("`target_idx` must be an integer >= 0 and <="
-        #         " self.size-1")
 
     def _mutate(self, target_idx, mutation, F, **kwargs):
         ''' Perform mutation for target vector by using the specified
@@ -505,7 +495,7 @@ class DEpopulation(__base):
             survival_ind = parent_ind
         return survival_ind
 
-#   ------------------------- DE Mutation Operators --------------------------
+##   ------------------------- DE Mutation Operators --------------------------
     # References:
     # [1] Comparison of mutation strategies in Differential Evolution-A
     # probabilistic perspective
@@ -587,26 +577,11 @@ class DEpopulation(__base):
     def __current_1(self, target_idx, F):
         ''' DE/current/1 mutation operator '''
         ind_r1, ind_r2 = self._parent_select(target_idx, k=2)
-        # F = exp(self.rng.rand()) # CWH: if do so, no need to input `F`
         mutant_vec = ( self.list_ind[target_idx].xvalue
                        + F * (ind_r1.xvalue - ind_r2.xvalue) )
         return mutant_vec
 
     # Validate in Ref[1]
-    # def __current_to_pbest_1(self, target_idx, F, p=0.2):
-    #     ''' DE/current-to-pbest/1 mutation operator '''
-    #     ind_r1, ind_r2 = self._parent_select(target_idx, k=2)
-    #     sorted_idxs = np.argsort(self.F)
-    #     top_p = int(np.ceil(self.size * p))
-    #     idxs = sorted_idxs[:top_p]
-    #     self.rng.shuffle(idxs)
-    #     K = self.rng.rand()
-    #     mutant_vec = ( self.list_ind[target_idx].xvalue
-    #                    + K *(self.list_ind[idxs[0]].xvalue
-    #                    - self.list_ind[target_idx].xvalue)
-    #                    + F * (ind_r1.xvalue - ind_r2.xvalue) )
-    #     return mutant_vec
-
     def __current_to_pbest_1(self, target_idx, F, **kwargs):
         ''' DE/current-to-pbest/1 mutation operator with optional external archive
         Ref:
@@ -634,7 +609,7 @@ class DEpopulation(__base):
             self.rng.shuffle(idxs_union)
             r2 = idxs_union[0]
             ind_r2 = union[r2]
-        # randonly select one ind from the 100p% best inds in pop
+        # randonly select one ind from the p% best inds in pop
         self.get_F()
         sorted_idxs = np.argsort(self.F)
         top_p = int(np.ceil(self.size * p))
@@ -677,7 +652,7 @@ class DEpopulation(__base):
                        + F * (ind_r2.xvalue - ind_r3.xvalue) )
         return mutant_vec
 
-#   ------------------------- DE Crossover Operators -------------------------
+##   ------------------------- DE Crossover Operators -------------------------
     # Reference: [Book] Computational Intelligence: An Introduction, page239-240
     def __bin_crossover(self, target_idx, mutant_vec, CR):
         ''' Binomial crossover operator '''
@@ -809,6 +784,7 @@ class ESpopulation(__base):
         return self.list_sorted[0:k]
 
 
+
 #!------------------------------------------------------------------------------
 #!                                    FUNCTIONS
 #!------------------------------------------------------------------------------
@@ -822,7 +798,7 @@ def get_f(object):
 #!------------------------------------------------------------------------------
 def main():
     case = "ALL"
-#*  --- Test Swarm
+    # --- Test Swarm
     if case == 1 or "ALL":
         a = Individual(fitness=1, solution=np.array([10., 20., 30.]))
         b = Individual(np.array([10., 20., 30.]), 2)

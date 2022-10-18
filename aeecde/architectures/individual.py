@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-''' Individuals related classes and functions
+''' Copyright 2022 Hao Bai, Changwu Huang and Xin Yao
+
+    Individuals related classes and functions
 '''
 import numpy as np
-import copy
-# HB : the following imports are for personal purpose
-try:
-    import sys, IPython
-    sys.excepthook = IPython.core.ultratb.ColorTB()
-except:
-    pass
+from copy import deepcopy
 
 
 
@@ -35,10 +31,10 @@ class __base(object):
         self._state_hist = []
         self._xvalue_hist = []
         self._fvalue_hist = []
-    
+
     # Returns the representation of the instance
     def __repr__(self):
-        return "{}( x={}, f(x)={} )".format(type(self).__name__, self.xvalue, 
+        return "{}( x={}, f(x)={} )".format(type(self).__name__, self.xvalue,
             self.fvalue)
 
     # Rich comparison methods with respect to the `fvalue` attribute of objects
@@ -56,16 +52,16 @@ class __base(object):
 
     def __le__(self, other):
         return self.__cmp_check(other, "__le__")
-    
+
     def __eq__(self, other):
         return self.__cmp_check(other, "__eq__")
 
     def __ne__(self, other):
         return self.__cmp_check(other, "__ne__")
-    
+
     def __ge__(self, other):
         return self.__cmp_check(other, "__ge__")
-    
+
     def __gt__(self, other):
         return self.__cmp_check(other, "__gt__")
 
@@ -99,11 +95,11 @@ class __base(object):
     @property
     def xvalue_hist(self):
         return self._xvalue_hist
-    
+
     @property
     def fvalue(self):
         return self._fvalue
-    
+
     @fvalue.setter
     def fvalue(self, value):
         if value is None:
@@ -114,7 +110,7 @@ class __base(object):
             raise TypeError("`fvalue` attribute must be None or a scalar, not a"
                 " {} of {}".format(type(value).__name__, value))
         self._fvalue_hist.append(self._fvalue)
-    
+
     @property
     def fvalue_hist(self):
         return self._fvalue_hist
@@ -135,7 +131,7 @@ class __base(object):
             raise ValueError("`state` attribute must be on of 'explore',"
                 " 'exploit' or 'neutral' ")
         self._state_hist.append(self._state)
-    
+
     @property
     def state_hist(self):
         return self._state_hist
@@ -155,13 +151,13 @@ class __base(object):
 
     def clone(self):
         ''' Return a copy of this instance. '''
-        return copy.deepcopy(self)
+        return deepcopy(self)
 
 
 class Particle(__base):
     ''' :class:`Particle` is the definition of particles in PSO methods.
-    '''    
-    def __init__(self, position=None, fvalue=None, velocity=None, 
+    '''
+    def __init__(self, position=None, fvalue=None, velocity=None,
                  p_best=None, f_best=None):
         '''
         Creates a new :class:`Particle` used in PSO methods.
@@ -234,7 +230,7 @@ class Particle(__base):
     def f_best(self):
         return self._f_best
 
-    # Since f_best is calculated by the algorithm, there's no need for 
+    # Since f_best is calculated by the algorithm, there's no need for
     # rechecking the type of this attribute
     @f_best.setter
     def f_best(self, value):
@@ -248,14 +244,14 @@ class Particle(__base):
     def update_velocity(self, w, c1, c2, X_best):
         return (w * self.velocity + c1 * (self.p_best-self.xvalue)
                 + c2 * (X_best-self.xvalue))
-        
+
     def update_position(self):
         self.xvalue = self.xvalue + self.velocity
 
 
 class Individual(__base):
     ''' :class:`Individual` is the definition of individuals by inheriting from
-    `__base`. This Individual class is used in many Evolutionary Algorithms, 
+    `__base`. This Individual class is used in many Evolutionary Algorithms,
     such as ES, DE, GA(floating-point representation).
     '''
     def __init__(self, solution=None, fitness=None):
@@ -289,7 +285,7 @@ class Individual(__base):
     def solution(self, value):
         self.xvalue = value
         self._solution = self.xvalue
-        
+
     @property
     def fitness(self):
         return self._fitness
@@ -298,16 +294,16 @@ class Individual(__base):
     def fitness(self, value):
         self.fvalue = value
         self._fitness = self.fvalue
-    
+
     @property
     def mutation(self):
         return self._mutation
-    
+
     @mutation.setter
     def mutation(self, operator):
         self._mutation = operator
         self._mutation_hist.append(self._mutation)
-    
+
     @property
     def mutation_hist(self):
         return self._mutation_hist
@@ -315,16 +311,16 @@ class Individual(__base):
     @property
     def crossover(self):
         return self._crossover
-    
+
     @crossover.setter
     def crossover(self, operator):
         self._crossover = operator
         self._crossover_hist.append(self._crossover)
-    
+
     @property
     def crossover_hist(self):
         return self._crossover_hist
-    
+
     @property
     def F(self):
         return self._F
@@ -333,11 +329,11 @@ class Individual(__base):
     def F(self, value):
         self._F = value
         self._F_hist.append(self._F)
-    
+
     @property
     def F_hist(self):
         return self._F_hist
-    
+
     @property
     def CR(self):
         return self._CR
@@ -346,7 +342,7 @@ class Individual(__base):
     def CR(self, value):
         self._CR = value
         self._CR_hist.append(self._CR)
-    
+
     @property
     def CR_hist(self):
         return self._CR_hist
@@ -398,7 +394,7 @@ def main():
             par = Particle(fvalue="test")
         except Exception as e:
             print("[OK] #1 Error message:", e)
-        
+
         try:
             par = Particle(position="test")
         except Exception as e:
@@ -442,27 +438,27 @@ def main():
             print(a<b)
         except Exception as e:
             print("[OK] #6 Error message:", e)
-            
-    
+
+
     # ------ evaluate Individual()
     if case == 4 or case == "ALL":
         # define evaluation function:
         #![***] ensure bounds is performed during evaluate an individual's fvalue.
-        # [TO DO]: `xvalue` of individual is directly changed within bounds here, 
+        # [TO DO]: `xvalue` of individual is directly changed within bounds here,
         # and return the `fvalue` of the changed `xvalue`.
         # It maybe better to not change `xvalue` directly, but return a new individual
         # whose `xvalue` is in bounds, and `fvalue` is the calculated fvalue.
         def evaluate(x):
             lower_bound = [-5] * len(x)
             upper_bound = [5] * len(x)
-            # boundary handlinig:    
+            # boundary handlinig:
             l_mask = np.where(x <= np.array(lower_bound))
             x[l_mask] = np.array(lower_bound)[l_mask]
             u_mask = np.where(x >= np.array(upper_bound))
             x[u_mask] = np.array(upper_bound)[u_mask]
             fitness = np.sum(x)
             return fitness
-        
+
         # test evaluation function
         ind1 = Individual(solution=np.array([1,1,1,1], dtype=float))
         ind2 = Individual(solution=np.array([-6, 4, 6, -3], dtype=float))
@@ -474,8 +470,7 @@ def main():
         print("\tEvaluated ind2: {}".format(ind2))
         print("[OK] Boundary handling & fitness evaluation are performed at the"
               " same time.")
-        
-            
+
 
 if __name__ == '__main__':
         main()
