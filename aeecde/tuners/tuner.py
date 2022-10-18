@@ -207,7 +207,7 @@ class __baseMAB(__base):
                 self._sw_size = int(size)
             else:
                 raise TypeError("`sliding_window_size` must be a int but {} is"
-                    " given".format(type(method)))
+                    " given".format(type(size)))
         else:
             self._sw_size = size
 

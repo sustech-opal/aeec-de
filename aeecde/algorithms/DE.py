@@ -238,7 +238,7 @@ class DE(__base):
         super().__init__(opt_problem, algo_parameters, stop_conditions)
         self.pop = DEpopulation(random_number_generator=self.para.rng)
 
-    def solve(self, disp=True, plot=False):
+    def solve(self, disp=False, plot=False):
         '''Solve the given problem instance'''
         self._initiate_generation_0()
         self._update_pop_attribute()

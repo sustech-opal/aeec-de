@@ -5,8 +5,8 @@
     Optimization problem definitions
 '''
 import numpy as np
-from aeecde import algorithms as alg
 # internal imports
+from aeecde import algorithms as alg
 from aeecde.publics import parameterize as para
 from aeecde.publics.tools import ensure_bounds_clip, ensure_bounds_mirror
 

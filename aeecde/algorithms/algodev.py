@@ -10,8 +10,8 @@ from copy import deepcopy
 # internal imports
 from aeecde.tuners.tuner import *
 from aeecde.publics import tools
-from algorithms.DE import _DEVariant
-from algorithms.DE import skip_and_aggregate_of_list_data
+from aeecde.algorithms.DE import _DEVariant
+from aeecde.algorithms.DE import skip_and_aggregate_of_list_data
 
 
 

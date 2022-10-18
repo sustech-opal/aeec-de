@@ -22,7 +22,7 @@ Algorithm Configuration, Differential Evolution, Parameter Control, Exploration 
 
 ### Tutorial
 
-[Click here to read the full tutorial.]()
+[Click here to read the full tutorial.](https://github.com/sustech-opal/aeec-de/blob/main/tutorial.ipynb)
 
 ## Citation
 

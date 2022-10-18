@@ -18,7 +18,7 @@ print("--- Step 1")
 print("Let's start by selecting a testing function from bbob benchmark, "
     "you'll get an object of `<class Benchmark>`:")
 benchmark = "bbob2015"
-D = 2
+D = 10
 funID = 7 # 8 9 Rosenbrock , 15 Rastrigin
 problem = aeecde.problem.Benchmark(
     benchmark_set=benchmark,
@@ -39,7 +39,7 @@ config = aeecde.publics.parameterize.DE(
 print(config)
 print("As well as stop conditions:")
 stop = aeecde.publics.parameterize.StopCondition(
-    max_FES=1000.*NP,
+    max_FES=1e3*NP,
     max_iter=None,
     delta_ftarget=1e-8)
 print(stop)
@@ -67,14 +67,15 @@ optimizer = aeecde.AEECDE(opt_problem=problem,
                           epsilon=0.2,
                           temperature=None,
                           sliding_window_size=50, # required for
-                                          # "sliding_window_average"
+                                                  # "sliding_window_average"
                          )
 print("You can solve the optimization problem by running `solve()` method. "
     "If you want to follow the result step by step, you can set "
     "`solve(disp=True)`:")
-results = optimizer.solve(disp=False, plot=True)
+results = optimizer.solve(1)
 #! -----------------------------------------------------------------------------
 tok = time.time()
+
 
 ## 4. (Optional) Save results to disk
 print("\n--- Step 4 (Optional)")
@@ -82,6 +83,7 @@ print("If you want to save the results permanently, you can use `save()` "
     "method. It will save the configurations, the stop conditions, "
     "the iteration history, and the final optimum to a json file.")
 optimizer.save()
+
 
 ## 5. (Optional) Post-processing
 print("\n--- Step 5 (Optional)")
@@ -92,7 +94,7 @@ print("\tTheoretical optimal value:", problem.f_opt_theory)
 print("\tRelative error:", results[1]-problem.f_opt_theory)
 print("\tEvolved Generations:", optimizer.data.get("nth_hist")[-1])
 
-print(optimizer.history)
+# print(optimizer.history)
 optimizer.show_evolution()
 
 optimizer.plot_para_histogram()
