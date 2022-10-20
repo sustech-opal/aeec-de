@@ -26,7 +26,7 @@ long_description = (this_directory / "README.md").read_text(encoding='utf-8')
 # set PyPI information
 setup(
     name='aeecde',
-    version='1.0.0',
+    version='1.0.1',
     url='https://github.com/sustech-opal/aeec-de',
     author='Hao Bai, Changwu Huang and Xin Yao',
     author_email='huangcw3@sustech.edu.cn',
