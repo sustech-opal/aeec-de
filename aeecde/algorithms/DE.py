@@ -43,6 +43,8 @@ class __base(object):
         self.stop = stop_conditions
         if (self.pb.f_opt_theory and self.stop.delta_ftarget) is not None:
             self.stop.ftarget = self.pb.f_opt_theory + self.stop.delta_ftarget
+        else:
+            self.stop.ftarget = None
         self._ALL_initial_schemes = {
             "latin_hypercube": tools.latin_hypercube_sampling,
             "random": tools.uniform_random_sampling}
@@ -123,13 +125,17 @@ class __base(object):
         if self.stop.ftarget is not None:
             if self.pop.F_best <= self.stop.ftarget:
                 termination['ftarget'] = self.stop.ftarget
+        else:
+            if len(self.history["f_opt"]) >= 10:
+                error = self.history["f_opt"][-10] - self.history["f_opt"][-1]
+                if error <= self.stop.delta_ftarget:
+                    termination['ferror'] = error
         return termination
 
     def reset(self):
         '''Reset the attributes of the optimizer.
 
-        All variables/atributes will be re-initialized when this method is called.
-
+        All variables and attributes will be re-initialized.
         '''
         # Initialize history lists
         self.history = {key: [] for key in self.HIST_ITEMS}
@@ -218,11 +224,14 @@ class __base(object):
         result["f_opt_hist"] = self.history.get("f_opt")
         if self.pb.f_opt_theory is not None:
             result["ferror_min"] = result["f_opt"] - self.pb.f_opt_theory
-            result["ferror_hist"] = list((np.array(result["f_opt_hist"])
-                                     - self.pb.f_opt_theory))
+            result["ferror_hist"] = list(
+                (np.array(result["f_opt_hist"]) - self.pb.f_opt_theory))
         else:
-            result["ferror_min"] = None
-            result["ferror_hist"] = None
+            result["ferror_min"] = result["stop_status"]["ferror"]
+            # Calculate the average of a sliding window of size 2
+            tmp = np.convolve(
+                result["f_opt_hist"], np.ones(2)/2, mode="valid")
+            result["ferror_hist"] = np.insert(tmp, 0, None)
         return result
 
 
